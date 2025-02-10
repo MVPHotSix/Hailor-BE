@@ -1,0 +1,7 @@
+spring:
+  config:
+    import: 'optional:aws-parameterstore:/config/Hailor'
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
