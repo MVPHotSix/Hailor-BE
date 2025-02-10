@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: hailor-api-ingress
+  namespace: sandbox
+  annotations:
+    ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/force-ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/use-regex: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: 50m
+spec:
+  rules:
+    - host: hailor-api.jayden-bin.kro.kr
+      http:
+        paths:
+          - path: /api/*
+            pathType: Prefix
+            backend:
+              service:
+                name: hailor-api-svc
+                port:
+                  number: 80
+  tls:
+    - hosts:
+        - hailor-api.jayden-bin.kro.kr
+      secretName: star-jayden-bin-kro-kr

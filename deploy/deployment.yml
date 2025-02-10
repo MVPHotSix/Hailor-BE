@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: hailor-api
+spec:
+  progressDeadlineSeconds: 900
+  selector:
+    matchLabels:
+      app: hailor-api
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  revisionHistoryLimit: 3
+  template:
+    metadata:
+      labels:
+        app: hailor-api
+    spec:
+      containers:
+        - image: ghcr.io/konempty/hailor:latest
+          imagePullPolicy: Always
+          name: hailor-api
+          resources:
+            limits:
+              cpu: 1000m
+              memory: 2048Mi
+          ports:
+            - containerPort: 8080
+          env:
+            - name: APP_PHASE
+              value: sandbox
+            - name: APP_NAME
+              value: hailor-api
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: hailor-secret
+                  key: awsSecretKey
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: hailor-secret
+                  key: awsAccessKey
+            - name: JAVA_TOOL_OPTIONS
+              value: >
+                -XX:InitialRAMPercentage=50
+                -XX:MaxRAMPercentage=80
+                -XX:MinRAMPercentage=80
+          readinessProbe:
+            httpGet:
+              port: 8080
+              path: /ready
+            initialDelaySeconds: 60
+            timeoutSeconds: 5
+          livenessProbe:
+            httpGet:
+              port: 8080
+              path: /health
+            initialDelaySeconds: 130
+            timeoutSeconds: 10
+            failureThreshold: 10
+      volumes:
+        - name: share-vol
+          emptyDir: {}
+      imagePullSecrets:
+        - name: ghcr-login-secret
+      nodeSelector:
+        performance: high
