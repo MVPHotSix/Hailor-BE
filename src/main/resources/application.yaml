@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: Hailor
+  profiles:
+    include:
+      - database
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  cloud:
+    compatibility-verifier:
+      enabled: false
+  threads:
+    virtual:
+      enabled: true
+server:
+  error:
+    whitelabel:
+      enabled: false
+  shutdown: graceful
+springdoc:
+  swagger-ui:
+    tagsSorter: alpha
