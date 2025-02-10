@@ -14,7 +14,7 @@ spec:
     - host: hailor-api.jayden-bin.kro.kr
       http:
         paths:
-          - path: /api/*
+          - path: /api/*|/swagger-ui/*|/v3/api-docs/*
             pathType: Prefix
             backend:
               service:
