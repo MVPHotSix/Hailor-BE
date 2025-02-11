@@ -37,7 +37,8 @@ public class SecurityConfig {
                         .requestMatchers(PERMITTED_URL_PATTERNS)
                         .permitAll()
                         .anyRequest()
-                        .authenticated()
+                       // .authenticated()
+                        .permitAll() // TODO 중요! 로그인이 완성되면 .authenticated()로 변경
                 ).build();
     }
 
