@@ -2,3 +2,5 @@
 /.gradle/
 /HELP.md
 /build/
+/tokens/StoredCredential
+/src/main/resources/credentials.json
