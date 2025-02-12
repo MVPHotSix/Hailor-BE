@@ -2,9 +2,11 @@ package kr.hailor.hailor.controller.meeting
 
 import kr.hailor.hailor.service.GoogleCalendarService
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 @RestController
+@RequestMapping("/api/v1/meet")
 class MeetController(
     private val calendarService: GoogleCalendarService,
 ) {
