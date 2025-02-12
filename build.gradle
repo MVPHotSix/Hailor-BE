@@ -65,9 +65,6 @@ dependencies {
     // 개발용 도구
     developmentOnly 'org.springframework.boot:spring-boot-devtools'
 
-    // H2 Database (개발용)
-    runtimeOnly 'com.h2database:h2'
-
     // 테스트 의존성
     testImplementation 'org.springframework.security:spring-security-test'
 
