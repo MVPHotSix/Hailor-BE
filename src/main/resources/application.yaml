@@ -1,10 +1,6 @@
 spring:
   application:
     name: Hailor
-  profiles:
-    include:
-      - database
-      - host
 
   servlet:
     multipart:
@@ -24,6 +20,7 @@ server:
 springdoc:
   swagger-ui:
     tagsSorter: alpha
+
 
   # 여기서 부터 김동현 작업
   security:
