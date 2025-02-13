@@ -11,7 +11,7 @@ import com.google.api.services.calendar.model.Event
 import com.google.api.services.calendar.model.EventDateTime
 import kr.hailor.hailor.util.GoogleAuthorizeUtil
 import org.springframework.stereotype.Service
-import java.util.UUID
+import java.util.*
 
 @Service
 class GoogleCalendarService(

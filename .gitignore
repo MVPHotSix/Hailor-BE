@@ -4,3 +4,5 @@
 /build/
 /tokens/StoredCredential
 /src/main/resources/credentials.json
+.env
+.env/
