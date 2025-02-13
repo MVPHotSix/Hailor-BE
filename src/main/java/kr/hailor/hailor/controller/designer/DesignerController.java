@@ -27,9 +27,10 @@ public class DesignerController {
 
     // 단일 디자이너 상세 조회 (필요 시 디자이너 상세 정보를 보여줄 때 사용)
     @GetMapping("/{id}")
-    public DesignerDetailResponseDto getDesigner(@PathVariable Long id) {
+    public DesignerDetailResponseDto getDesigner(@PathVariable("id") Long id) {
         Designer designer = designerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("디자이너가 존재하지 않습니다: ID=" + id));
         return DesignerDetailResponseDto.fromEntity(designer);
     }
+
 }
