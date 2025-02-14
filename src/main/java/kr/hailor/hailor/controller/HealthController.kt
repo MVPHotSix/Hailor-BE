@@ -1,22 +1,20 @@
-package kr.hailor.hailor.controller;
+package kr.hailor.hailor.controller
 
-import jakarta.servlet.http.HttpServletResponse;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
+import jakarta.servlet.http.HttpServletResponse
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
-public class HealthController {
-
+class HealthController {
     @GetMapping("/health")
-    HealthResponse health() {
-        return new HealthResponse(HttpServletResponse.SC_OK);
+    fun health(): HealthResponse {
+        return HealthResponse(HttpServletResponse.SC_OK)
     }
 
     @GetMapping("/ready")
-    void ready() {
+    fun ready() {
     }
 }
 
-
-record HealthResponse(int status) {
-}
+@JvmRecord
+data class HealthResponse(val status: Int)
