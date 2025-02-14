@@ -14,7 +14,6 @@ import org.springframework.core.io.ClassPathResource
 import org.springframework.stereotype.Component
 import java.io.File
 import java.io.InputStreamReader
-import java.util.Collections
 
 @Component
 class GoogleAuthorizeUtil(
@@ -35,7 +34,10 @@ class GoogleAuthorizeUtil(
                     GoogleNetHttpTransport.newTrustedTransport(),
                     JSON_FACTORY,
                     clientSecrets,
-                    Collections.singletonList("https://www.googleapis.com/auth/calendar"),
+                    listOf(
+                        "https://www.googleapis.com/auth/calendar.app.created",
+                        "https://www.googleapis.com/auth/calendar.calendarlist.readonly",
+                    ),
                 ).setDataStoreFactory(FileDataStoreFactory(File(TOKENS_DIRECTORY_PATH)))
                 .setAccessType("offline")
                 .build()
