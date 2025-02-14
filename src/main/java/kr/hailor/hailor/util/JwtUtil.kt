@@ -38,6 +38,7 @@ class JwtUtil(
                 "email" to user.email,
                 "userId" to user.id.toString(),
                 "name" to user.name,
+                "role" to user.role.name,
             ),
             expirationTime,
             accessKey,
