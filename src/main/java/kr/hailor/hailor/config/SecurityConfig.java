@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hibernate.internal.util.collections.CollectionHelper.listOf;
+import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
 public class SecurityConfig {
@@ -46,7 +47,7 @@ public class SecurityConfig {
         return http.csrf(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .cors(AbstractHttpConfigurer::disable)
+                .cors(withDefaults())
                 .sessionManagement(it -> it.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(it -> it
                         .requestMatchers(HttpMethod.OPTIONS)
