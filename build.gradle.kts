@@ -34,6 +34,10 @@ dependencies {
 
     runtimeOnly("com.oracle.database.jdbc:ojdbc10:19.21.0.0")
     implementation("org.redisson:redisson-spring-boot-starter:3.33.0")
+    implementation("com.linecorp.kotlin-jdsl:jpql-dsl:3.5.4")
+    implementation("com.linecorp.kotlin-jdsl:jpql-render:3.5.4")
+    implementation("com.linecorp.kotlin-jdsl:spring-data-jpa-support:3.5.4")
+    implementation("com.linecorp.kotlin-jdsl:hibernate-kotlin-jdsl-jakarta:2.2.1.RELEASE")
 
     implementation(platform("io.awspring.cloud:spring-cloud-aws-dependencies:3.3.0"))
     implementation("io.awspring.cloud:spring-cloud-aws-starter-parameter-store:3.3.0")

@@ -9,11 +9,13 @@ enum class ErrorCode(
 ) {
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, -40000, "유효하지 않은 요청입니다"),
     NOT_AGREED_ALL_REQUIRED_TERMS(HttpStatus.BAD_REQUEST, -40001, "모든 필수 약관에 동의해야 합니다"),
+    NOT_SUPPORTED_IMAGE_EXTENSION(HttpStatus.BAD_REQUEST, -40002, "지원하지 않는 이미지 확장자입니다"),
 
     AUTHENTICATED_USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, -40100, "인증된 사용자를 찾을 수 없습니다."),
 
     NOT_FOUND(HttpStatus.NOT_FOUND, -40400, "찾을 수 없습니다"),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, -40401, "파일을 찾을 수 없습니다"),
+    REGION_NOT_FOUND(HttpStatus.NOT_FOUND, -40402, "지역을 찾을 수 없습니다"),
 
     USER_NOT_REGISTERED(HttpStatus.UNAUTHORIZED, -40300, "등록되지 않은 사용자입니다"),
 

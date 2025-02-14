@@ -16,7 +16,7 @@ class AdminTermsController(
 ) {
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    fun createTerms(request: AdminTermsRequest) {
+    fun createTerms(request: AdminTermsCreateRequest) {
         termsService.createTerms(request)
     }
 }

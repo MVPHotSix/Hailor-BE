@@ -1,6 +1,6 @@
 package kr.hailor.hailor.service
 
-import kr.hailor.hailor.controller.forAdmin.terms.AdminTermsRequest
+import kr.hailor.hailor.controller.forAdmin.terms.AdminTermsCreateRequest
 import kr.hailor.hailor.controller.forUser.terms.TermInfoDTO
 import kr.hailor.hailor.controller.forUser.terms.TermsResponse
 import kr.hailor.hailor.enity.Terms
@@ -22,7 +22,7 @@ class TermsService(
         )
     }
 
-    fun createTerms(request: AdminTermsRequest) {
+    fun createTerms(request: AdminTermsCreateRequest) {
         termsRepository.save(Terms(title = request.title, isRequired = request.isRequired, contentFileName = request.contentFileName))
     }
 }
