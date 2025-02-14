@@ -1,24 +1,13 @@
 package kr.hailor.hailor.service
 
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport
-import com.google.api.client.json.gson.GsonFactory
-import com.google.api.client.util.DateTime
-import com.google.api.services.calendar.Calendar
-import com.google.api.services.calendar.model.ConferenceData
-import com.google.api.services.calendar.model.ConferenceSolutionKey
-import com.google.api.services.calendar.model.CreateConferenceRequest
-import com.google.api.services.calendar.model.Event
-import com.google.api.services.calendar.model.EventAttendee
-import com.google.api.services.calendar.model.EventDateTime
 import kr.hailor.hailor.util.GoogleAuthorizeUtil
 import org.springframework.stereotype.Service
-import java.util.UUID
 
 @Service
 class GoogleCalendarService(
     private val googleAuthorizeUtil: GoogleAuthorizeUtil,
 ) {
-    val calendarService: Calendar by lazy {
+    /*val calendarService: Calendar by lazy {
         Calendar
             .Builder(
                 GoogleNetHttpTransport.newTrustedTransport(),
@@ -26,10 +15,10 @@ class GoogleCalendarService(
                 googleAuthorizeUtil.authorize(),
             ).setApplicationName("Hailor")
             .build()
-    }
+    }*/
 
     private fun getOrCreateSecondaryCalendar(): String {
-        val calendarSummary = "Hailor 디자이너 예약 캘린더" // 보조 캘린더 이름
+      /*  val calendarSummary = "Hailor 디자이너 예약 캘린더" // 보조 캘린더 이름
 
         // 보조 캘린더 목록 조회
         val calendarList = calendarService.calendarList().list().execute()
@@ -46,11 +35,12 @@ class GoogleCalendarService(
             val createdCalendar = calendarService.calendars().insert(calendar).execute()
             println("🆕 보조 캘린더 생성 완료: ${createdCalendar.id}")
             createdCalendar.id
-        }
+        }*/
+        return "보조 캘린더 생성 실패"
     }
 
     fun createGoogleMeetLink(): String {
-        val event =
+        /*val event =
             Event()
                 .setSummary("Hailor 컨설팅 예약")
                 .setDescription("고객님과 디자이너님의 소중한 컨설팅 시간입니다")
@@ -87,8 +77,8 @@ class GoogleCalendarService(
                 .events()
                 .insert(getOrCreateSecondaryCalendar(), event)
                 .setConferenceDataVersion(1)
-                .execute()
+                .execute()*/
 
-        return createdEvent.hangoutLink ?: "Google Meet 링크 생성 실패"
+        return "Google Meet 링크 생성 실패"
     }
 }

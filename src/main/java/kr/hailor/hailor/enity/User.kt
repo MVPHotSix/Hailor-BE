@@ -1,4 +1,4 @@
-package kr.hailor.hailor.enity.user
+package kr.hailor.hailor.enity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
@@ -9,7 +9,6 @@ import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
-import kr.hailor.hailor.enity.BaseModifiableEntity
 
 @Entity
 @Table(name = "users")

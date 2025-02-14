@@ -1,4 +1,4 @@
-package kr.hailor.hailor.controller.meeting
+package kr.hailor.hailor.controller.forUser.meeting
 
 import kr.hailor.hailor.service.GoogleCalendarService
 import org.springframework.web.bind.annotation.GetMapping

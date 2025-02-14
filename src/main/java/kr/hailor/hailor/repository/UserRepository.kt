@@ -1,5 +1,6 @@
-package kr.hailor.hailor.enity.user
+package kr.hailor.hailor.repository
 
+import kr.hailor.hailor.enity.User
 import org.springframework.data.jpa.repository.JpaRepository
 
 interface UserRepository : JpaRepository<User, Long> {

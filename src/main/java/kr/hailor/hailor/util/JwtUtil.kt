@@ -5,7 +5,7 @@ import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.io.Decoders
 import io.jsonwebtoken.security.Keys
 import kr.hailor.hailor.config.properties.JwtProperties
-import kr.hailor.hailor.enity.user.User
+import kr.hailor.hailor.enity.User
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.data.redis.core.StringRedisTemplate

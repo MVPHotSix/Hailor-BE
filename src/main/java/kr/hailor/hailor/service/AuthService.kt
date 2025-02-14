@@ -6,8 +6,8 @@ import com.google.api.client.json.gson.GsonFactory
 import kr.hailor.hailor.config.properties.OAuthProperties
 import kr.hailor.hailor.controller.auth.LoginRequest
 import kr.hailor.hailor.controller.auth.ServiceTokensResponse
-import kr.hailor.hailor.enity.user.User
-import kr.hailor.hailor.enity.user.UserRepository
+import kr.hailor.hailor.enity.User
+import kr.hailor.hailor.repository.UserRepository
 import kr.hailor.hailor.util.JwtUtil
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

@@ -1,7 +1,7 @@
 package kr.hailor.hailor.service
 
-import kr.hailor.hailor.enity.user.User
-import kr.hailor.hailor.enity.user.UserRepository
+import kr.hailor.hailor.enity.User
+import kr.hailor.hailor.repository.UserRepository
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails

@@ -3,8 +3,8 @@ package kr.hailor.hailor.service
 import kr.hailor.hailor.client.KakaoPayClient
 import kr.hailor.hailor.client.KakaoPayGetOrderStatusResponse
 import kr.hailor.hailor.client.KakaoPayReadyResponse
-import kr.hailor.hailor.controller.payment.KakaoPayPaymentConfirmRequest
-import kr.hailor.hailor.controller.payment.KakaoPayPaymentRequest
+import kr.hailor.hailor.controller.forUser.payment.KakaoPayPaymentConfirmRequest
+import kr.hailor.hailor.controller.forUser.payment.KakaoPayPaymentRequest
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 

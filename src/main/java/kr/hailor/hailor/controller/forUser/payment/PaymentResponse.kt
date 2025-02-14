@@ -1,4 +1,4 @@
-package kr.hailor.hailor.controller.payment
+package kr.hailor.hailor.controller.forUser.payment
 
 import kr.hailor.hailor.client.KakaoPayGetOrderStatusResponse
 import kr.hailor.hailor.client.KakaoPayReadyResponse

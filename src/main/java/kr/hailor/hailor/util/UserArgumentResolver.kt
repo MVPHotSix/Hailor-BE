@@ -1,6 +1,6 @@
 package kr.hailor.hailor.util
 
-import kr.hailor.hailor.enity.user.User
+import kr.hailor.hailor.enity.User
 import kr.hailor.hailor.exception.AuthenticatedUserNotFoundException
 import kr.hailor.hailor.service.SecurityUser
 import org.springframework.core.MethodParameter
