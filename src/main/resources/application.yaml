@@ -1,11 +1,23 @@
 spring:
   application:
     name: Hailor
-  profiles:
-    include:
-      - database
-      - host
-
+  datasource:
+    url: jdbc:oracle:thin:@(description= (retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-chuncheon-1.oraclecloud.com))(connect_data=(service_name=gc3308309e89fe6_hailor_medium.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes)))
+    driver-class-name: oracle.jdbc.OracleDriver
+    username: DEVLEOPER
+    password: 72c9b2244a9d67ecE
+    hikari:
+      maximum-pool-size: 4
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update    # 개발환경에서는 update, 필요시 운영에서는 validate로 변경
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.oracle.Oracle12cDialect  # 실제 Oracle 버전에 맞게 선택
+        format_sql: true
+        default_batch_fetch_size: 100
   servlet:
     multipart:
       max-file-size: 10MB
@@ -16,11 +28,59 @@ spring:
   threads:
     virtual:
       enabled: true
+  web:
+    resources:
+      chain:
+        enabled: true
+  thymeleaf:
+    enabled: false
+  session:
+    store-type: none
+
 server:
   error:
     whitelabel:
       enabled: false
   shutdown: graceful
+
 springdoc:
   swagger-ui:
     tagsSorter: alpha
+
+security:
+  oauth2:
+    client:
+      registration:
+        google:
+          client-id: ${GOOGLE_CLIENT_ID}
+          client-secret: ${GOOGLE_CLIENT_SECRET}
+          redirect-uri: "{baseUrl}/login/oauth2/code/google"
+          scope:
+            - email
+            - profile
+
+mail:
+  host: smtp.gmail.com
+  port: 587
+  username: hyeon51237@gmail.com
+  password: ${EMAIL_PASSWORD}
+  properties:
+    mail:
+      smtp:
+        auth: true
+        starttls.enable: true
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+    org.springframework.web: DEBUG
+    org:
+      hibernate: info
+
+jwt:
+  secretKey: ${JWT_SECRET_KEY}
+
+host:
+  api-server: "https://hailor-api.jayden-bin.kro.kr"
+  fe: "https://hailor.jayden-bin.kro.kr"
+  kakao-pay: "https://open-api.kakaopay.com"

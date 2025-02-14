@@ -15,6 +15,13 @@ java {
     }
 }
 
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+
 repositories {
     mavenCentral()
 }
@@ -45,9 +52,10 @@ dependencies {
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
 
-    implementation("com.google.api-client:google-api-client:2.7.2")
-    implementation("com.google.apis:google-api-services-calendar:v3-rev20250115-2.0.0")
-    implementation("com.google.oauth-client:google-oauth-client-jetty:1.37.0")
+    // 구글 로그인
+    implementation("com.google.api-client:google-api-client:2.2.0")
+    implementation("com.google.apis:google-api-services-calendar:v3-rev305-1.25.0")
+    implementation("com.google.auth:google-auth-library-oauth2-http:1.22.0")
 
     // Spring Boot 스타터 의존성
     implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'

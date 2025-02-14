@@ -1,12 +1,10 @@
 package kr.hailor.hailor.controller.reservation;
 
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import kr.hailor.hailor.dto.ReservationResponseDto;
+import kr.hailor.hailor.dto.ReservationDto;
 import kr.hailor.hailor.entity.Reservation;
 import kr.hailor.hailor.service.ReservationService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,42 +12,46 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/reservations")
 @RequiredArgsConstructor
-@Tag(name = "Reservation", description = "예약 관리 API")
 public class ReservationController {
 
-  private final ReservationService reservationService;
+    private final ReservationService reservationService;
 
-  @Operation(summary = "예약 목록 조회", description = "사용자의 예약 목록을 조회합니다.")
-  @ApiResponse(responseCode = "200", description = "조회 성공")
-  @GetMapping
-  public ResponseEntity<List<ReservationResponseDto>> getMyReservations(
-          Authentication authentication) {
-    String userEmail = authentication.getName();
-    List<ReservationResponseDto> reservations =
-            reservationService.getReservationsByUser(userEmail);
-    return ResponseEntity.ok(reservations);
-  }
+    // [필수] 예약 생성 엔드포인트 (대면/비대면 신청, 디자이너 선택, 날짜/시간 선택)
+    @PostMapping
+    public Reservation createReservation(
+            @RequestBody ReservationDto dto,
+            Authentication authentication
+    ) {
+        // JWT 인증된 사용자의 이메일을 통해 예약 생성
+        String userEmail = authentication.getName();
+        return reservationService.createReservation(userEmail, dto);
+    }
 
-  @Operation(summary = "예약 상세 조회", description = "예약 상세 정보를 조회합니다.")
-  @ApiResponse(responseCode = "200", description = "조회 성공")
-  @GetMapping("/{id}")
-  public ResponseEntity<ReservationResponseDto> getReservationDetail(
-          @Parameter(description = "예약 ID") @PathVariable Long id,
-          Authentication authentication) {
-    String userEmail = authentication.getName();
-    ReservationResponseDto reservation =
-            reservationService.getReservationDetail(id, userEmail);
-    return ResponseEntity.ok(reservation);
-  }
+    // 예약 목록 조회
+    @GetMapping
+    public List<Reservation> getMyReservations(Authentication authentication) {
+        String userEmail = authentication.getName();
+        return reservationService.getReservationsByUser(userEmail);
+    }
 
-  @Operation(summary = "예약 취소", description = "예약을 취소합니다.")
-  @ApiResponse(responseCode = "200", description = "취소 성공")
-  @DeleteMapping("/{id}")
-  public ResponseEntity<String> cancelReservation(
-          @Parameter(description = "예약 ID") @PathVariable Long id,
-          Authentication authentication) {
-    String userEmail = authentication.getName();
-    reservationService.cancelReservation(id, userEmail);
-    return ResponseEntity.ok("예약이 취소되었습니다. ID=" + id);
-  }
+    // 예약 상세 조회
+    @GetMapping("/{id}/get_reservation")
+    public Reservation getReservationDetail(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        String userEmail = authentication.getName();
+        return reservationService.getReservationDetail(id, userEmail);
+    }
+
+    // 예약 취소 (추후 구현)
+    @DeleteMapping("/{id}")
+    public String cancelReservation(
+            @PathVariable Long id,
+            Authentication authentication
+    ) {
+        String userEmail = authentication.getName();
+        reservationService.cancelReservation(id, userEmail);
+        return "예약이 취소되었습니다. ID=" + id;
+    }
 }

@@ -1,6 +1,8 @@
-package kr.hailor.hailor.dto;
+package kr.hailor.hailor.dto.reservation;
 
 import kr.hailor.hailor.entity.Reservation;
+import kr.hailor.hailor.entity.ReservationStatus;
+import lombok.Getter;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -22,10 +24,10 @@ public class ReservationResponseDto {
     return ReservationResponseDto.builder()
             .id(reservation.getId())
             .designerName(reservation.getDesigner().getName())
-            .reservationTime(reservation.getReservationTime())
+            .reservationTime(reservation.getReservationDateTime())
             .status(reservation.getStatus())
-            .consultationType(reservation.getConsultationType())
-            .userName(reservation.getUser().getName())
+            .consultationType(reservation.getType().name())
+            .userName(reservation.getUser().getUsername())
             .createdAt(reservation.getCreatedAt())
             .build();
   }

@@ -1,4 +1,0 @@
-host:
-  api-server: "https://hailor-api.jayden-bin.kro.kr"
-  fe: "https://hailor.jayden-bin.kro.kr" # 정해지진 않았지만 그냥 넣어둠 TODO 나중에 확정되면 수정 필요
-  kakao-pay: "https://open-api.kakaopay.com"
