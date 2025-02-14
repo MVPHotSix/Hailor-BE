@@ -24,7 +24,7 @@ class User(
     val name: String,
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    val role: Role = Role.USER,
+    val role: Role,
     @Column(length = 255, nullable = false, updatable = false)
     private val providerId: String,
 ) : BaseModifiableEntity()
