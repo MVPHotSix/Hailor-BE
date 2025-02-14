@@ -7,4 +7,5 @@ data class HostProperties(
     val apiServer: String,
     val fe: String,
     val kakaoPay: String,
+    val cdn: String,
 )
