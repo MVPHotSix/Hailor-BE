@@ -1,4 +1,14 @@
 spring:
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: hyeon51237@gmail.com
+    password: ${EMAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls.enable: true
   application:
     name: Hailor
   profiles:
@@ -41,19 +51,6 @@ springdoc:
 
 
 
-
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: hyeon51237@gmail.com
-    password: ${EMAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls.enable: true
-
-
   jpa:
     hibernate:
     show-sql: true
@@ -65,5 +62,4 @@ logging:
 
 jwt:
   secretKey: ${JWT_SECRET_KEY}
-
 
