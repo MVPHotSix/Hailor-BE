@@ -3,6 +3,8 @@ package kr.hailor.hailor.service
 import kr.hailor.hailor.config.properties.HostProperties
 import kr.hailor.hailor.controller.forAdmin.designer.AdminDesignerCreateRequest
 import kr.hailor.hailor.controller.forAdmin.designer.AdminDesignerRegionCreateRequest
+import kr.hailor.hailor.controller.forAdmin.designer.AdminDesignerSearchRequest
+import kr.hailor.hailor.controller.forAdmin.designer.AdminDesignerSearchResponse
 import kr.hailor.hailor.controller.forUser.designer.DesignerInfoDto
 import kr.hailor.hailor.controller.forUser.designer.DesignerRegionResponse
 import kr.hailor.hailor.controller.forUser.designer.DesignerScheduleInfoDto
@@ -11,6 +13,7 @@ import kr.hailor.hailor.controller.forUser.designer.DesignerSearchRequest
 import kr.hailor.hailor.controller.forUser.designer.DesignerSearchResponse
 import kr.hailor.hailor.enity.Designer
 import kr.hailor.hailor.enity.DesignerRegion
+import kr.hailor.hailor.enity.ReservationStatus
 import kr.hailor.hailor.exception.DesignerNotFoundException
 import kr.hailor.hailor.exception.NotSupportedImageExtensionException
 import kr.hailor.hailor.exception.RegionNotFoundException
@@ -18,6 +21,7 @@ import kr.hailor.hailor.repository.DesignerRegionRepository
 import kr.hailor.hailor.repository.DesignerRepository
 import kr.hailor.hailor.repository.ObjectStorageRepository
 import kr.hailor.hailor.repository.ReservationRepository
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.multipart.MultipartFile
@@ -36,6 +40,21 @@ class DesignerService(
         val designers = designerRepository.searchDesigner(request).content
         return DesignerSearchResponse(
             designers = designers.map { designer -> DesignerInfoDto.of(designer, "${hostProperties.cdn}/${designer.profileImageName}") },
+        )
+    }
+
+    fun searchAdminDesigner(request: AdminDesignerSearchRequest): AdminDesignerSearchResponse {
+        val designers =
+            if (request.lastId == null) {
+                designerRepository.findAllByOrderByIdDesc(Pageable.ofSize(request.size)).content
+            } else {
+                designerRepository.findAllByIdLessThanOrderByIdDesc(request.lastId, Pageable.ofSize(request.size)).content
+            }
+        return AdminDesignerSearchResponse(
+            designers =
+                designers.map { designer ->
+                    AdminDesignerSearchResponse.DesignerInfoDto.of(designer, "${hostProperties.cdn}/${designer.profileImageName}")
+                },
         )
     }
 
@@ -80,7 +99,14 @@ class DesignerService(
         return DesignerScheduleResponse(
             date = date,
             designer = DesignerInfoDto.of(designer, "${hostProperties.cdn}/${designer.profileImageName}"),
-            schedule = DesignerScheduleInfoDto(reservation.map { it.slot }),
+            schedule =
+                DesignerScheduleInfoDto(
+                    reservation
+                        .filter {
+                            it.status in
+                                listOf(ReservationStatus.RESERVED, ReservationStatus.FINISHED, ReservationStatus.CONFIRMED)
+                        }.map { it.slot },
+                ),
         )
     }
 }

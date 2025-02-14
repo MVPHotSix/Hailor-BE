@@ -4,6 +4,7 @@ import kr.hailor.hailor.service.DesignerService
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestPart
@@ -32,4 +33,7 @@ class AdminDesignerController(
     ) {
         designerService.createDesigner(request, profileImage)
     }
+
+    @GetMapping
+    fun searchDesigner(request: AdminDesignerSearchRequest): AdminDesignerSearchResponse = designerService.searchAdminDesigner(request)
 }

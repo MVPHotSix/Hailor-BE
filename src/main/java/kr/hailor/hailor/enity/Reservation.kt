@@ -41,15 +41,19 @@ class Reservation(
     var googleMeetLink: String? = null,
     @Column(nullable = false, updatable = false)
     val price: Int,
+    @Column(length = 100)
+    var paymentId: String? = null,
 ) : BaseModifiableEntity()
 
 enum class ReservationStatus(
     val description: String,
 ) {
     RESERVED("예약됨"),
-    PAID("결제완료"),
     CONFIRMED("확정됨"),
     FINISHED("종료됨"),
+    CANCELED("취소됨"),
+    NEED_REFUND("환불 요청됨"),
+    REFUNDED("환불됨"),
 }
 
 enum class PaymentMethod {

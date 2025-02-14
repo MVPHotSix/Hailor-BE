@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.Parameter
 import kr.hailor.hailor.enity.User
 import kr.hailor.hailor.service.ReservationService
 import org.springframework.http.HttpStatus
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -29,4 +30,13 @@ class ReservationController(
         user: User,
         request: UserReservationsSearchRequest,
     ): UserReservationsResponse = reservationService.getReservations(user, request)
+
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @DeleteMapping("/{id}")
+    fun cancelReservation(
+        @Parameter(hidden = true)
+        user: User,
+        @Parameter(description = "예약 ID")
+        id: Long,
+    ) = reservationService.cancelReservation(user, id)
 }

@@ -1,5 +1,7 @@
 package kr.hailor.hailor.controller.forUser.payment
 
+import io.swagger.v3.oas.annotations.Parameter
+import kr.hailor.hailor.enity.User
 import kr.hailor.hailor.service.PaymentService
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -11,10 +13,14 @@ class PaymentController(
     private val paymentService: PaymentService,
 ) {
     @PostMapping("/kakao-pay")
-    fun requestKakaoPayPayment(request: KakaoPayPaymentRequest): KakaoPayPaymentRequestResponse =
-        KakaoPayPaymentRequestResponse.of(paymentService.requestKakaoPayPayment(request))
+    fun requestKakaoPayPayment(
+        @Parameter(hidden = true) user: User,
+        request: KakaoPayPaymentRequest,
+    ): KakaoPayPaymentRequestResponse = KakaoPayPaymentRequestResponse.of(paymentService.requestKakaoPayPayment(request, user))
 
     @PostMapping("/kakao-pay/confirm")
-    fun confirmKakaoPayPayment(request: KakaoPayPaymentConfirmRequest): KakaoPayPaymentConfirmResponse =
-        KakaoPayPaymentConfirmResponse.of(paymentService.confirmKakaoPayPayment(request))
+    fun confirmKakaoPayPayment(
+        @Parameter(hidden = true) user: User,
+        request: KakaoPayPaymentConfirmRequest,
+    ): KakaoPayPaymentConfirmResponse = KakaoPayPaymentConfirmResponse.of(paymentService.confirmKakaoPayPayment(request, user))
 }

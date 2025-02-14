@@ -17,3 +17,8 @@ data class AdminDesignerCreateRequest(
     val onlinePrice: Int,
     val description: String,
 )
+
+data class AdminDesignerSearchRequest(
+    val size: Int,
+    val lastId: Long?,
+)

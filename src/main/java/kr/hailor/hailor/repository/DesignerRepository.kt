@@ -7,6 +7,7 @@ import kr.hailor.hailor.enity.DesignerRegion
 import kr.hailor.hailor.enity.MeetingType
 import kr.hailor.hailor.enity.Reservation
 import kr.hailor.hailor.util.getSlice
+import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
@@ -15,7 +16,14 @@ import org.springframework.stereotype.Repository
 @Repository
 interface DesignerRepository :
     JpaRepository<Designer, Long>,
-    DesignerCustomRepository
+    DesignerCustomRepository {
+    fun findAllByIdLessThanOrderByIdDesc(
+        lastId: Long,
+        pageable: Pageable,
+    ): Page<Designer>
+
+    fun findAllByOrderByIdDesc(pageable: Pageable): Page<Designer>
+}
 
 interface DesignerCustomRepository {
     fun searchDesigner(request: DesignerSearchRequest): Slice<Designer>

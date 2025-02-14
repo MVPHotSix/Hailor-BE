@@ -1,6 +1,7 @@
 package kr.hailor.hailor.repository
 
 import kr.hailor.hailor.enity.Reservation
+import kr.hailor.hailor.enity.ReservationStatus
 import kr.hailor.hailor.enity.User
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
@@ -15,10 +16,11 @@ interface ReservationRepository : JpaRepository<Reservation, Long> {
         reservationDate: LocalDate,
     ): List<Reservation>
 
-    fun existsByDesignerIdAndReservationDateAndSlot(
+    fun existsByDesignerIdAndReservationDateAndSlotAndStatusIn(
         designerId: Long,
         reservationDate: LocalDate,
         slot: Int,
+        statuses: List<ReservationStatus>,
     ): Boolean
 
     fun findAllByIdLessThanAndUserOrderByIdDesc(
@@ -31,4 +33,11 @@ interface ReservationRepository : JpaRepository<Reservation, Long> {
         user: User,
         pageable: Pageable,
     ): Page<Reservation>
+
+    fun findAllByIdLessThanOrderByIdDesc(
+        lastId: Long,
+        pageable: Pageable,
+    ): Page<Reservation>
+
+    fun findAllByOrderByIdDesc(pageable: Pageable): Page<Reservation>
 }
