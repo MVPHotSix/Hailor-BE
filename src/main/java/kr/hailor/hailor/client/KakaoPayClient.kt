@@ -39,10 +39,9 @@ class KakaoPayClient(
                     quantity = 1,
                     totalAmount = amount,
                     taxFreeAmount = 0,
-                    // TODO 아래 URL은 아무거나 넣어둔것이므로 나중에 수정할것
-                    approvalUrl = "${hostProperties.fe}/kakao-pay/approve",
-                    cancelUrl = "${hostProperties.fe}/kakao-pay/cancel",
-                    failUrl = "${hostProperties.fe}/kakao-pay/fail",
+                    approvalUrl = "${hostProperties.fe}/payment/success",
+                    cancelUrl = "${hostProperties.fe}/payment/cancel",
+                    failUrl = "${hostProperties.fe}/payment/failure",
                 ),
             ).retrieve()
             .body<KakaoPayReadyResponse>() ?: throw FailToRequestKakaoPayAPIException("결제 요청 API")
