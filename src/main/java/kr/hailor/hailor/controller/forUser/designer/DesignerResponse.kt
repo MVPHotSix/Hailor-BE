@@ -1,6 +1,7 @@
 package kr.hailor.hailor.controller.forUser.designer
 
 import kr.hailor.hailor.enity.Designer
+import java.time.LocalDate
 
 data class DesignerSearchResponse(
     val designers: List<DesignerInfoDto>,
@@ -41,4 +42,14 @@ data class DesignerInfoDto(
 data class DesignerRegionResponse(
     val id: Long,
     val name: String,
+)
+
+data class DesignerScheduleResponse(
+    val date: LocalDate,
+    val designer: DesignerInfoDto,
+    val schedule: DesignerScheduleInfoDto,
+)
+
+data class DesignerScheduleInfoDto(
+    val slot: List<Int>,
 )

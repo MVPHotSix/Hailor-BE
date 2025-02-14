@@ -5,18 +5,12 @@ import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
-import kr.hailor.hailor.enity.User
-import org.springdoc.core.utils.SpringDocUtils
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.http.HttpHeaders.AUTHORIZATION
 
 @Configuration
 class ApiDocsConfig {
-    init {
-        SpringDocUtils.getConfig().addJavaTypeToIgnore(User::class.java)
-    }
-
     @Bean
     fun openAPI(): OpenAPI =
         OpenAPI()

@@ -10,14 +10,18 @@ enum class ErrorCode(
     INVALID_REQUEST(HttpStatus.BAD_REQUEST, -40000, "유효하지 않은 요청입니다"),
     NOT_AGREED_ALL_REQUIRED_TERMS(HttpStatus.BAD_REQUEST, -40001, "모든 필수 약관에 동의해야 합니다"),
     NOT_SUPPORTED_IMAGE_EXTENSION(HttpStatus.BAD_REQUEST, -40002, "지원하지 않는 이미지 확장자입니다"),
+    ALREADY_RESERVED_DESIGNER_SLOT(HttpStatus.BAD_REQUEST, -40003, "이미 예약된 디자이너 슬롯입니다"),
+    MEETING_TYPE_INVALID(HttpStatus.BAD_REQUEST, -40004, "미팅 타입이 유효하지 않습니다"),
+    INVALID_RESERVATION_DATE(HttpStatus.BAD_REQUEST, -40005, "유효하지 않은 예약 날짜입니다"),
 
     AUTHENTICATED_USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, -40100, "인증된 사용자를 찾을 수 없습니다."),
+
+    USER_NOT_REGISTERED(HttpStatus.UNAUTHORIZED, -40300, "등록되지 않은 사용자입니다"),
 
     NOT_FOUND(HttpStatus.NOT_FOUND, -40400, "찾을 수 없습니다"),
     FILE_NOT_FOUND(HttpStatus.NOT_FOUND, -40401, "파일을 찾을 수 없습니다"),
     REGION_NOT_FOUND(HttpStatus.NOT_FOUND, -40402, "지역을 찾을 수 없습니다"),
-
-    USER_NOT_REGISTERED(HttpStatus.UNAUTHORIZED, -40300, "등록되지 않은 사용자입니다"),
+    DESIGNER_NOT_FOUND(HttpStatus.NOT_FOUND, -40403, "디자이너를 찾을 수 없습니다"),
 
     INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, -50000, "서버 내부 오류입니다"),
     FAIL_TO_REQUEST_KAKAO_PAY_API(HttpStatus.INTERNAL_SERVER_ERROR, -50001, "카카오페이 준비 요청 실패"),

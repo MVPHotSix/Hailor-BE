@@ -2,6 +2,8 @@ package kr.hailor.hailor.enity
 
 import jakarta.persistence.Column
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.GeneratedValue
 import jakarta.persistence.GenerationType
 import jakarta.persistence.Id
@@ -17,13 +19,40 @@ class Reservation(
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "RESERVATION_SEQ_GENERATOR")
     @Column(updatable = false, nullable = false)
-    val id: Long,
-    @Column(nullable = false)
-    val reservationDate: LocalDate,
-    @Column(nullable = false)
-    val slot: Int,
+    val id: Long = 0,
     @ManyToOne
     val designer: Designer,
     @ManyToOne
     val user: User,
+    @Column(nullable = false)
+    val reservationDate: LocalDate,
+    @Column(nullable = false)
+    val slot: Int,
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    val meetingType: MeetingType,
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    var status: ReservationStatus,
+    @Enumerated(EnumType.STRING)
+    @Column(length = 20, nullable = false)
+    var paymentMethod: PaymentMethod,
+    @Column(length = 100)
+    var googleMeetLink: String? = null,
+    @Column(nullable = false, updatable = false)
+    val price: Int,
 ) : BaseModifiableEntity()
+
+enum class ReservationStatus(
+    val description: String,
+) {
+    RESERVED("예약됨"),
+    PAID("결제완료"),
+    CONFIRMED("확정됨"),
+    FINISHED("종료됨"),
+}
+
+enum class PaymentMethod {
+    KAKAO_PAY,
+    BANK_TRANSFER,
+}
