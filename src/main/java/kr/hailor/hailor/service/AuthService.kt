@@ -10,6 +10,7 @@ import kr.hailor.hailor.controller.auth.SignUpRequest
 import kr.hailor.hailor.enity.AgreedTerms
 import kr.hailor.hailor.enity.Role
 import kr.hailor.hailor.enity.User
+import kr.hailor.hailor.exception.AlreadyRegisteredUserException
 import kr.hailor.hailor.exception.NotAgreedAllRequiredTermsException
 import kr.hailor.hailor.exception.NotRegisteredUserException
 import kr.hailor.hailor.repository.AgreedTermsRepository
@@ -58,10 +59,14 @@ class AuthService(
         }
 
         val payload = verifyGoogleToken(request.token)
+        val email = payload["email"] as String
+        if (userRepository.existsByEmail(email)) {
+            throw AlreadyRegisteredUserException()
+        }
         val user =
             userRepository.save(
                 User(
-                    email = payload["email"] as String,
+                    email = email,
                     name = payload["name"] as String,
                     role = Role.USER,
                     providerId = payload["sub"] as String,
