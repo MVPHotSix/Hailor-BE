@@ -58,6 +58,6 @@ class JobScheduler(
     }
 
     companion object {
-        val POPULAR_DESIGNER_DATA_CACHE_KEY = "popularDesignerData"
+        const val POPULAR_DESIGNER_DATA_CACHE_KEY = "popularDesignerData"
     }
 }
