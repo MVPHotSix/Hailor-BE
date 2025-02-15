@@ -30,7 +30,7 @@ enum class ErrorCode(
 
     ALREADY_REGISTERED_USER(HttpStatus.CONFLICT, -40900, "이미 가입된 사용자입니다"),
 
-    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, -50000, "서버 내부 오류입니다"),
+    TEMPORALLY_UNAVAILABLE(HttpStatus.INTERNAL_SERVER_ERROR, -50000, "일시적인 오류입니다. 잠시 후 다시 시도해주세요"),
     FAIL_TO_REQUEST_KAKAO_PAY_API(HttpStatus.INTERNAL_SERVER_ERROR, -50001, "카카오페이 준비 요청 실패"),
     GOOGLE_MEET_LINK(HttpStatus.INTERNAL_SERVER_ERROR, -50002, "Google Meet 링크 생성 실패"),
 }

@@ -2,7 +2,6 @@ package kr.hailor.hailor.util
 
 import org.redisson.api.RedissonClient
 import org.springframework.stereotype.Component
-import java.time.LocalDate
 import java.util.concurrent.TimeUnit
 
 @Component
@@ -23,9 +22,4 @@ class LockUtil(
         val rLock = redissonClient.getLock(lockName)
         rLock.unlock()
     }
-
-    fun getReservationLockKey(
-        designerId: Long,
-        reservationDate: LocalDate,
-    ): String = "reservation:$designerId:$reservationDate"
 }

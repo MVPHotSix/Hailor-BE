@@ -1,7 +1,6 @@
 package kr.hailor.hailor.service
 
 import kr.hailor.hailor.client.KakaoPayClient
-import kr.hailor.hailor.config.properties.HostProperties
 import kr.hailor.hailor.controller.forAdmin.reservation.AdminReservationListResponse
 import kr.hailor.hailor.controller.forAdmin.reservation.AdminReservationSearchRequest
 import kr.hailor.hailor.controller.forUser.reservation.ReservationCreateRequest
@@ -19,7 +18,9 @@ import kr.hailor.hailor.exception.DesignerNotFoundException
 import kr.hailor.hailor.exception.InvalidMeetingTypeException
 import kr.hailor.hailor.exception.InvalidReservationDateException
 import kr.hailor.hailor.exception.ReservationNotFoundException
+import kr.hailor.hailor.exception.TemporallyUnavailableException
 import kr.hailor.hailor.repository.DesignerRepository
+import kr.hailor.hailor.repository.ObjectStorageRepository
 import kr.hailor.hailor.repository.ReservationRepository
 import kr.hailor.hailor.util.LockUtil
 import org.springframework.data.domain.Pageable
@@ -35,8 +36,8 @@ class ReservationService(
     private val reservationRepository: ReservationRepository,
     private val designerRepository: DesignerRepository,
     private val lockUtil: LockUtil,
-    private val hostProperties: HostProperties,
     private val kakaoPayClient: KakaoPayClient,
+    private val objectStorageRepository: ObjectStorageRepository,
 ) {
     @Transactional
     fun createReservation(
@@ -44,13 +45,16 @@ class ReservationService(
         request: ReservationCreateRequest,
     ) {
         val designer = designerRepository.findById(request.designerId).orElseThrow { DesignerNotFoundException() }
-        val lockKey = lockUtil.getReservationLockKey(request.designerId, request.reservationDate)
-        lockUtil.lock(
-            lockName = lockKey,
-            waitTime = 3,
-            leaseTime = 3,
-            timeUnit = TimeUnit.SECONDS,
-        )
+        val lockKey = "reservation:${designer.id}:${request.reservationDate}"
+        if (!lockUtil.lock(
+                lockName = lockKey,
+                waitTime = 3,
+                leaseTime = 3,
+                timeUnit = TimeUnit.SECONDS,
+            )
+        ) {
+            throw TemporallyUnavailableException()
+        }
         if (reservationRepository.existsByDesignerIdAndReservationDateAndSlotAndStatusIn(
                 request.designerId,
                 request.reservationDate,
@@ -122,7 +126,7 @@ class ReservationService(
                         designer =
                             ReservationInfoDto.ReservationDesignerInfoDto.of(
                                 it.designer,
-                                "${hostProperties.cdn}/${it.designer.profileImageName}",
+                                objectStorageRepository.getDownloadUrl(it.designer.profileImageName),
                             ),
                     )
                 },
@@ -151,7 +155,7 @@ class ReservationService(
                         designer =
                             AdminReservationListResponse.ReservationInfoDto.ReservationDesignerInfoDto.of(
                                 it.designer,
-                                "${hostProperties.cdn}/${it.designer.profileImageName}",
+                                objectStorageRepository.getDownloadUrl(it.designer.profileImageName),
                             ),
                         user = AdminReservationListResponse.ReservationInfoDto.ReservationUserInfoDto.of(it.user),
                     )

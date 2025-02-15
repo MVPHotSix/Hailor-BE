@@ -25,4 +25,7 @@ class DesignerController(
         @FutureOrPresent
         date: LocalDate,
     ): DesignerScheduleResponse = designerService.getDesignerSchedule(id, date)
+
+    @GetMapping("/popular")
+    fun getPopularDesigner(): PopularDesignerResponse = designerService.getPopularDesigner()
 }

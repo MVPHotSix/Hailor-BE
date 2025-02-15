@@ -53,3 +53,7 @@ data class DesignerScheduleResponse(
 data class DesignerScheduleInfoDto(
     val slot: List<Int>,
 )
+
+data class PopularDesignerResponse(
+    val designers: List<DesignerInfoDto>,
+)

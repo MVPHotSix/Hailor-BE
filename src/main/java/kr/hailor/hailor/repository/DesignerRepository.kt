@@ -6,12 +6,14 @@ import kr.hailor.hailor.enity.Designer
 import kr.hailor.hailor.enity.DesignerRegion
 import kr.hailor.hailor.enity.MeetingType
 import kr.hailor.hailor.enity.Reservation
+import kr.hailor.hailor.util.getPage
 import kr.hailor.hailor.util.getSlice
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Slice
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
 
 @Repository
 interface DesignerRepository :
@@ -27,6 +29,8 @@ interface DesignerRepository :
 
 interface DesignerCustomRepository {
     fun searchDesigner(request: DesignerSearchRequest): Slice<Designer>
+
+    fun popularDesigner(targetDate: LocalDate): Page<Designer>
 }
 
 class DesignerCustomRepositoryImpl(
@@ -80,5 +84,22 @@ class DesignerCustomRepositoryImpl(
                         }
                     }.toTypedArray(),
                 ).orderBy(path(Designer::id).desc())
+        }
+
+    override fun popularDesigner(targetDate: LocalDate): Page<Designer> =
+        kotlinJdslJpqlExecutor.getPage(Pageable.ofSize(10)) {
+            val designerEntity = entity(Designer::class)
+            val reservationEntity = entity(Reservation::class)
+            // targetDate 이후 예약된 예약이 가장 많은 디자이너 10명을 조회
+            select(designerEntity)
+                .from(designerEntity)
+                .orderBy(
+                    select(count(reservationEntity))
+                        .from(reservationEntity)
+                        .where(path(Reservation::reservationDate).ge(targetDate))
+                        .groupBy(path(Reservation::designer))
+                        .asSubquery()
+                        .desc(),
+                )
         }
 }

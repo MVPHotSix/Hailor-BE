@@ -18,7 +18,7 @@ class TermsService(
     fun getTerms(): TermsResponse {
         val terms = termsRepository.findAll()
         return TermsResponse(
-            terms.map { TermInfoDTO(it.id, it.title, it.isRequired, objectStorageRepository.downloadUrl(it.contentFileName)) },
+            terms.map { TermInfoDTO(it.id, it.title, it.isRequired, objectStorageRepository.getDownloadUrl(it.contentFileName)) },
         )
     }
 
