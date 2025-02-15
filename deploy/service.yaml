@@ -7,8 +7,5 @@ spec:
     - port: 80
       protocol: TCP
       targetPort: 8080
-    - port: 81
-      protocol: TCP
-      targetPort: 443
   selector:
     app: hailor-api

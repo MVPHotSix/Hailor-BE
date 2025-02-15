@@ -21,13 +21,6 @@ spec:
                 name: hailor-api-svc
                 port:
                   number: 80
-          - path: /Callback
-            pathType: Prefix
-            backend:
-              service:
-                name: hailor-api-svc
-                port:
-                  number: 81
   tls:
     - hosts:
         - hailor-api.jayden-bin.kro.kr

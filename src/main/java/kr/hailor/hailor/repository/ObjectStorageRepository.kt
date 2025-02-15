@@ -4,7 +4,7 @@ import io.awspring.cloud.s3.S3Template
 import kr.hailor.hailor.config.properties.HostProperties
 import kr.hailor.hailor.config.properties.S3Properties
 import org.springframework.stereotype.Repository
-import java.io.FileNotFoundException
+import org.springframework.web.multipart.MultipartFile
 import java.io.InputStream
 
 @Repository
@@ -21,11 +21,11 @@ class ObjectStorageRepository(
         return result.url.toString()
     }
 
-    fun downloadUrl(key: String): String {
-        if (s3Template.objectExists(s3Properties.bucket, key)) {
-            return "${hostProperties.cdn}/$key"
-        }
-        throw FileNotFoundException("File not found")
+    fun getDownloadUrl(key: String): String = "${hostProperties.cdn}/$key"
+
+    fun isImageFile(file: MultipartFile): Boolean {
+        val allowedMimeTypes = listOf("image/jpeg", "image/png", "image/webp", "image/bmp")
+        return file.contentType in allowedMimeTypes
     }
 
     fun delete(key: String) {

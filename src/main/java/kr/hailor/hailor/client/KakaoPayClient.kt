@@ -57,6 +57,22 @@ class KakaoPayClient(
                 ),
             ).retrieve()
             .body<KakaoPayGetOrderStatusResponse>() ?: throw FailToRequestKakaoPayAPIException("결제 결과 조회 API")
+
+    fun cancel(
+        tid: String,
+        amount: Int,
+    ) = client
+        .post()
+        .uri("/online/v1/payment/cancel")
+        .body(
+            KakaoPayCancelRequest(
+                cid = kakaoPayProperties.cid,
+                tid = tid,
+                cancelAmount = amount,
+                cancelTaxFreeAmount = 0,
+            ),
+        ).retrieve()
+        .body<KakaoPayCancelResponse>() ?: throw FailToRequestKakaoPayAPIException("결제 취소 API")
 }
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
@@ -112,3 +128,19 @@ enum class KakaoPayStatus(
     QUIT_PAYMENT("사용자가 결제 중단"),
     FAIL_PAYMENT("결제 승인 실패"),
 }
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+data class KakaoPayCancelRequest(
+    val cid: String,
+    val tid: String,
+    val cancelAmount: Int,
+    val cancelTaxFreeAmount: Int,
+)
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+data class KakaoPayCancelResponse(
+    val tid: String,
+    val status: KakaoPayStatus,
+    val approvedAt: String?,
+    val canceledAt: String?,
+)

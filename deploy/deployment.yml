@@ -29,7 +29,6 @@ spec:
               memory: 2048Mi
           ports:
             - containerPort: 8080
-            - containerPort: 443
           env:
             - name: APP_PHASE
               value: sandbox
