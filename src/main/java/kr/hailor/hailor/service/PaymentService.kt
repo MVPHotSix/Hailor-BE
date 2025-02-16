@@ -52,6 +52,9 @@ class PaymentService(
         user: User,
     ): KakaoPayGetOrderStatusResponse {
         val reservation = reservationRepository.findById(request.reservationId).orElseThrow { ReservationNotFoundException() }
+        if (reservation.user.id != user.id) {
+            throw ReservationNotFoundException()
+        }
         if (reservation.paymentMethod != PaymentMethod.KAKAO_PAY) {
             throw PaymentTypeMismatchException()
         }

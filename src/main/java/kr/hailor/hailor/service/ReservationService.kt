@@ -47,6 +47,26 @@ class ReservationService(
     ) {
         val designer = designerRepository.findById(request.designerId).orElseThrow { DesignerNotFoundException() }
         val lockKey = "reservation:${designer.id}:${request.reservationDate}"
+
+        if ((designer.meetingType != MeetingType.OFFLINE_AND_ONLINE && designer.meetingType != request.meetingType) ||
+            request.meetingType == MeetingType.OFFLINE_AND_ONLINE
+        ) {
+            throw InvalidMeetingTypeException()
+        }
+        if (request.reservationDate > LocalDate.now().plusDays(90) ||
+            request.reservationDate.isBefore(LocalDate.now()) ||
+            request.slot !in 0 until 20 ||
+            (
+                request.reservationDate.isEqual(LocalDate.now()) &&
+                    LocalDateTime.now() >
+                    LocalDateTime.of(
+                        LocalDate.now(),
+                        LocalTime.of(10 + request.slot / 2, if (request.slot % 2 == 0)0 else 30),
+                    )
+            )
+        ) {
+            throw InvalidReservationDateException()
+        }
         if (!lockUtil.lock(
                 lockName = lockKey,
                 waitTime = 3,
@@ -65,26 +85,6 @@ class ReservationService(
         ) {
             lockUtil.unlock(lockKey)
             throw AlreadyReservedDesignerSlotException()
-        }
-        if ((designer.meetingType != MeetingType.OFFLINE_AND_ONLINE && designer.meetingType != request.meetingType) ||
-            request.meetingType == MeetingType.OFFLINE_AND_ONLINE
-        ) {
-            lockUtil.unlock(lockKey)
-            throw InvalidMeetingTypeException()
-        }
-        if (request.reservationDate.isBefore(LocalDate.now()) ||
-            request.slot !in 0 until 20 ||
-            (
-                request.reservationDate.isEqual(LocalDate.now()) &&
-                    LocalDateTime.now() >
-                    LocalDateTime.of(
-                        LocalDate.now(),
-                        LocalTime.of(10 + request.slot / 2, if (request.slot % 2 == 0)0 else 30),
-                    )
-            )
-        ) {
-            lockUtil.unlock(lockKey)
-            throw InvalidReservationDateException()
         }
         reservationRepository.save(
             Reservation(
