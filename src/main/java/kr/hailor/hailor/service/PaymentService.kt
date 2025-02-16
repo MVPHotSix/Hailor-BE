@@ -79,7 +79,7 @@ class PaymentService(
             throw InvalidMeetingTypeException()
         }
 
-        if (result.status != KakaoPayStatus.SUCCESS_PAYMENT) {
+        if (result.status == KakaoPayStatus.SUCCESS_PAYMENT) {
             val googleMeetCreateResult =
                 googleMeetManager.createGoogleMeet(reservation, request.googleAccessToken)
             reservation.googleCalendarEventId = googleMeetCreateResult.first
