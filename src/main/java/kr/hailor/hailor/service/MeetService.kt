@@ -22,6 +22,6 @@ class MeetService(
             throw NotConfirmedException()
         }
 
-        return googleMeetCreator.createGoogleMeet(reservation, request.token)
+        return googleMeetCreator.createGoogleMeet(reservation, request.googleAuthCode)
     }
 }

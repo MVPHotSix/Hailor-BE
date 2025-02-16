@@ -6,10 +6,12 @@ import kr.hailor.hailor.client.KakaoPayReadyResponse
 import kr.hailor.hailor.client.KakaoPayStatus
 import kr.hailor.hailor.controller.forUser.payment.KakaoPayPaymentConfirmRequest
 import kr.hailor.hailor.controller.forUser.payment.KakaoPayPaymentRequest
+import kr.hailor.hailor.enity.MeetingType
 import kr.hailor.hailor.enity.PaymentMethod
 import kr.hailor.hailor.enity.ReservationStatus
 import kr.hailor.hailor.enity.User
 import kr.hailor.hailor.exception.AlreadyPaidException
+import kr.hailor.hailor.exception.InvalidMeetingTypeException
 import kr.hailor.hailor.exception.PaymentTypeMismatchException
 import kr.hailor.hailor.exception.ReservationNotFoundException
 import kr.hailor.hailor.repository.ReservationRepository
@@ -62,8 +64,17 @@ class PaymentService(
         if (result.status == KakaoPayStatus.SUCCESS_PAYMENT) {
             reservation.status = ReservationStatus.CONFIRMED
         }
+        if (request.googleAuthCode == null) {
+            if (reservation.meetingType == MeetingType.ONLINE) {
+                throw InvalidMeetingTypeException()
+            }
+            return result
+        } else if (reservation.meetingType == MeetingType.OFFLINE) {
+            throw InvalidMeetingTypeException()
+        }
+
         val googleMeetLink =
-            googleMeetCreator.createGoogleMeet(reservation, request.token)
+            googleMeetCreator.createGoogleMeet(reservation, request.googleAuthCode)
         reservation.googleMeetLink = googleMeetLink
         return result
     }
