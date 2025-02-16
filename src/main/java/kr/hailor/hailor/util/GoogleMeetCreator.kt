@@ -21,15 +21,11 @@ import java.util.Date
 import java.util.UUID
 
 @Component
-class GoogleMeetCreator(
-    private val googleAuthorizeUtil: GoogleAuthorizeUtil,
-) {
+class GoogleMeetCreator {
     fun createGoogleMeet(
         reservation: Reservation,
-        authToken: String,
+        accessToken: String,
     ): String {
-        val accessKey =
-            googleAuthorizeUtil.getAccessKeyWithCredentials(authToken) ?: throw GoogleMeetLinkException()
         val startLocalDateTime =
             reservation.reservationDate.atStartOfDay().plusHours((10 + reservation.slot / 2).toLong()).plusMinutes(
                 if (reservation.slot % 2 == 0) {
@@ -42,7 +38,7 @@ class GoogleMeetCreator(
 
         val endLocalDateTime = startLocalDateTime.plusMinutes(30)
         val endDateTime = DateTime(Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant()))
-        val credential = GoogleCredentials.newBuilder().setAccessToken(AccessToken(accessKey, null)).build()
+        val credential = GoogleCredentials.newBuilder().setAccessToken(AccessToken(accessToken, null)).build()
 
         val calendarService =
             Calendar

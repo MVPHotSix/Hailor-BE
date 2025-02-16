@@ -1,7 +1,9 @@
 package kr.hailor.hailor.service
 
 import kr.hailor.hailor.controller.forUser.meeting.GoogleMeetCreateRequest
+import kr.hailor.hailor.enity.MeetingType
 import kr.hailor.hailor.enity.ReservationStatus
+import kr.hailor.hailor.exception.InvalidMeetingTypeException
 import kr.hailor.hailor.exception.NotConfirmedException
 import kr.hailor.hailor.exception.ReservationNotFoundException
 import kr.hailor.hailor.repository.ReservationRepository
@@ -21,7 +23,10 @@ class MeetService(
         if (reservation.status != ReservationStatus.CONFIRMED) {
             throw NotConfirmedException()
         }
+        if (reservation.meetingType == MeetingType.OFFLINE) {
+            throw InvalidMeetingTypeException()
+        }
 
-        return googleMeetCreator.createGoogleMeet(reservation, request.googleAuthCode)
+        return googleMeetCreator.createGoogleMeet(reservation, request.googleAccessToken)
     }
 }

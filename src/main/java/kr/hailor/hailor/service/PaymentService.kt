@@ -64,7 +64,7 @@ class PaymentService(
         if (result.status == KakaoPayStatus.SUCCESS_PAYMENT) {
             reservation.status = ReservationStatus.CONFIRMED
         }
-        if (request.googleAuthCode == null) {
+        if (request.googleAccessToken == null) {
             if (reservation.meetingType == MeetingType.ONLINE) {
                 throw InvalidMeetingTypeException()
             }
@@ -74,7 +74,7 @@ class PaymentService(
         }
 
         val googleMeetLink =
-            googleMeetCreator.createGoogleMeet(reservation, request.googleAuthCode)
+            googleMeetCreator.createGoogleMeet(reservation, request.googleAccessToken)
         reservation.googleMeetLink = googleMeetLink
         return result
     }
