@@ -51,7 +51,7 @@ class KakaoPayClient(
         orderId: Long,
         userId: Long,
         pgToken: String,
-    ): RestClient.ResponseSpec =
+    ): String? =
         client
             .post()
             .uri("/online/v1/payment/approve")
@@ -64,6 +64,7 @@ class KakaoPayClient(
                     pgToken = pgToken,
                 ),
             ).retrieve()
+            .body(String::class.java)
 
     fun getOrderStatus(tid: String): KakaoPayGetOrderStatusResponse =
         client
