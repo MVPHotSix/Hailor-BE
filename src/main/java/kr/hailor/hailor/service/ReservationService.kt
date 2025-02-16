@@ -1,8 +1,10 @@
 package kr.hailor.hailor.service
 
 import kr.hailor.hailor.client.KakaoPayClient
+import kr.hailor.hailor.client.KakaoPayStatus
 import kr.hailor.hailor.controller.forAdmin.reservation.AdminReservationListResponse
 import kr.hailor.hailor.controller.forAdmin.reservation.AdminReservationSearchRequest
+import kr.hailor.hailor.controller.forUser.reservation.ReservationCancelRequest
 import kr.hailor.hailor.controller.forUser.reservation.ReservationCreateRequest
 import kr.hailor.hailor.controller.forUser.reservation.ReservationInfoDto
 import kr.hailor.hailor.controller.forUser.reservation.UserReservationsResponse
@@ -17,11 +19,13 @@ import kr.hailor.hailor.exception.AlreadyReservedDesignerSlotException
 import kr.hailor.hailor.exception.DesignerNotFoundException
 import kr.hailor.hailor.exception.InvalidMeetingTypeException
 import kr.hailor.hailor.exception.InvalidReservationDateException
+import kr.hailor.hailor.exception.NeedGoogleAccessTokenException
 import kr.hailor.hailor.exception.ReservationNotFoundException
 import kr.hailor.hailor.exception.TemporallyUnavailableException
 import kr.hailor.hailor.repository.DesignerRepository
 import kr.hailor.hailor.repository.ObjectStorageRepository
 import kr.hailor.hailor.repository.ReservationRepository
+import kr.hailor.hailor.util.GoogleMeetManager
 import kr.hailor.hailor.util.LockUtil
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -38,6 +42,7 @@ class ReservationService(
     private val lockUtil: LockUtil,
     private val kakaoPayClient: KakaoPayClient,
     private val objectStorageRepository: ObjectStorageRepository,
+    private val googleMeetManager: GoogleMeetManager,
 ) {
     @Transactional
     fun createReservation(
@@ -46,6 +51,26 @@ class ReservationService(
     ) {
         val designer = designerRepository.findById(request.designerId).orElseThrow { DesignerNotFoundException() }
         val lockKey = "reservation:${designer.id}:${request.reservationDate}"
+
+        if ((designer.meetingType != MeetingType.OFFLINE_AND_ONLINE && designer.meetingType != request.meetingType) ||
+            request.meetingType == MeetingType.OFFLINE_AND_ONLINE
+        ) {
+            throw InvalidMeetingTypeException()
+        }
+        if (request.reservationDate > LocalDate.now().plusDays(90) ||
+            request.reservationDate.isBefore(LocalDate.now()) ||
+            request.slot !in 0 until 20 ||
+            (
+                request.reservationDate.isEqual(LocalDate.now()) &&
+                    LocalDateTime.now() >
+                    LocalDateTime.of(
+                        LocalDate.now(),
+                        LocalTime.of(10 + request.slot / 2, if (request.slot % 2 == 0)0 else 30),
+                    )
+            )
+        ) {
+            throw InvalidReservationDateException()
+        }
         if (!lockUtil.lock(
                 lockName = lockKey,
                 waitTime = 3,
@@ -64,26 +89,6 @@ class ReservationService(
         ) {
             lockUtil.unlock(lockKey)
             throw AlreadyReservedDesignerSlotException()
-        }
-        if ((designer.meetingType != MeetingType.OFFLINE_AND_ONLINE && designer.meetingType != request.meetingType) ||
-            request.meetingType == MeetingType.OFFLINE_AND_ONLINE
-        ) {
-            lockUtil.unlock(lockKey)
-            throw InvalidMeetingTypeException()
-        }
-        if (request.reservationDate.isBefore(LocalDate.now()) ||
-            request.slot !in 0 until 20 ||
-            (
-                request.reservationDate.isEqual(LocalDate.now()) &&
-                    LocalDateTime.now() >
-                    LocalDateTime.of(
-                        LocalDate.now(),
-                        LocalTime.of(10 + request.slot / 2, if (request.slot % 2 == 0)0 else 30),
-                    )
-            )
-        ) {
-            lockUtil.unlock(lockKey)
-            throw InvalidReservationDateException()
         }
         reservationRepository.save(
             Reservation(
@@ -112,26 +117,38 @@ class ReservationService(
                 reservationRepository.findAllByIdLessThanAndUserOrderByIdDesc(request.lastId, user, Pageable.ofSize(request.size))
             }
         return UserReservationsResponse(
-            reservations =
-                reservations.content.map {
-                    ReservationInfoDto(
-                        id = it.id,
-                        date = it.reservationDate,
-                        status = it.status,
-                        slot = it.slot,
-                        meetingType = it.meetingType,
-                        paymentMethod = it.paymentMethod,
-                        googleMeetLink = it.googleMeetLink,
-                        price = it.price,
-                        designer =
-                            ReservationInfoDto.ReservationDesignerInfoDto.of(
-                                it.designer,
-                                objectStorageRepository.getDownloadUrl(it.designer.profileImageName),
-                            ),
-                    )
-                },
+            reservations = reservationsToUserReservationsResponse(reservations.content),
         )
     }
+
+    fun getRecentFinishedReservation(
+        user: User,
+        request: UserReservationsSearchRequest,
+    ): UserReservationsResponse {
+        val reservations = reservationRepository.findAllRecentFinishedReservation(user, request, LocalDateTime.now())
+        return UserReservationsResponse(
+            reservations = reservationsToUserReservationsResponse(reservations.content),
+        )
+    }
+
+    private fun reservationsToUserReservationsResponse(reservations: List<Reservation>) =
+        reservations.map {
+            ReservationInfoDto(
+                id = it.id,
+                date = it.reservationDate,
+                status = it.status,
+                slot = it.slot,
+                meetingType = it.meetingType,
+                paymentMethod = it.paymentMethod,
+                googleMeetLink = it.googleMeetLink,
+                price = it.price,
+                designer =
+                    ReservationInfoDto.ReservationDesignerInfoDto.of(
+                        it.designer,
+                        objectStorageRepository.getDownloadUrl(it.designer.profileImageName),
+                    ),
+            )
+        }
 
     fun getAdminReservations(request: AdminReservationSearchRequest): AdminReservationListResponse {
         val reservations =
@@ -167,6 +184,7 @@ class ReservationService(
     fun cancelReservation(
         user: User,
         id: Long,
+        request: ReservationCancelRequest,
     ) {
         val reservation = reservationRepository.findById(id).orElseThrow { ReservationNotFoundException() }
         if (reservation.user.id != user.id) {
@@ -182,6 +200,12 @@ class ReservationService(
         } else if (reservation.status == ReservationStatus.CONFIRMED) {
             reservation.status = ReservationStatus.NEED_REFUND
         }
+        if (reservation.googleCalendarEventId != null && reservation.googleMeetLink != null) {
+            if (request.googleAccessToken == null) {
+                throw NeedGoogleAccessTokenException()
+            }
+            googleMeetManager.deleteGoogleMeet(reservation.googleCalendarEventId!!, request.googleAccessToken)
+        }
     }
 
     @Transactional
@@ -192,7 +216,10 @@ class ReservationService(
         }
         reservation.status = ReservationStatus.REFUNDED
         if (reservation.paymentMethod == PaymentMethod.KAKAO_PAY) {
-            kakaoPayClient.cancel(reservation.paymentId!!, reservation.price)
+            val result = kakaoPayClient.getOrderStatus(reservation.paymentId!!)
+            if (result.status == KakaoPayStatus.SUCCESS_PAYMENT) { // 결제가 완료된 경우에만 환불 진행
+                kakaoPayClient.cancel(reservation.paymentId!!, reservation.price)
+            }
         }
     }
 }

@@ -39,6 +39,8 @@ class Reservation(
     var paymentMethod: PaymentMethod,
     @Column(length = 100)
     var googleMeetLink: String? = null,
+    @Column(length = 50)
+    var googleCalendarEventId: String? = null,
     @Column(nullable = false, updatable = false)
     val price: Int,
     @Column(length = 100)

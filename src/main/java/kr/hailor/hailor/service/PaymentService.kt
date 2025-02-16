@@ -6,22 +6,25 @@ import kr.hailor.hailor.client.KakaoPayReadyResponse
 import kr.hailor.hailor.client.KakaoPayStatus
 import kr.hailor.hailor.controller.forUser.payment.KakaoPayPaymentConfirmRequest
 import kr.hailor.hailor.controller.forUser.payment.KakaoPayPaymentRequest
+import kr.hailor.hailor.enity.MeetingType
 import kr.hailor.hailor.enity.PaymentMethod
 import kr.hailor.hailor.enity.ReservationStatus
 import kr.hailor.hailor.enity.User
 import kr.hailor.hailor.exception.AlreadyPaidException
+import kr.hailor.hailor.exception.InvalidMeetingTypeException
+import kr.hailor.hailor.exception.NeedGoogleAccessTokenException
 import kr.hailor.hailor.exception.PaymentTypeMismatchException
 import kr.hailor.hailor.exception.ReservationNotFoundException
 import kr.hailor.hailor.repository.ReservationRepository
-import kr.hailor.hailor.util.GoogleMeetCreator
+import kr.hailor.hailor.util.GoogleMeetManager
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PaymentService(
-    private val kakoPayClient: KakaoPayClient,
+    private val kakaoPayClient: KakaoPayClient,
     private val reservationRepository: ReservationRepository,
-    private val googleMeetCreator: GoogleMeetCreator,
+    private val googleMeetManager: GoogleMeetManager,
 ) {
     @Transactional
     fun requestKakaoPayPayment(
@@ -39,7 +42,7 @@ class PaymentService(
             throw AlreadyPaidException()
         }
 
-        val result = kakoPayClient.ready(amount = reservation.price, orderId = reservation.id, userId = user.id)
+        val result = kakaoPayClient.ready(amount = reservation.price, orderId = reservation.id, userId = user.id)
         reservation.paymentId = result.tid
         return result
     }
@@ -50,6 +53,9 @@ class PaymentService(
         user: User,
     ): KakaoPayGetOrderStatusResponse {
         val reservation = reservationRepository.findById(request.reservationId).orElseThrow { ReservationNotFoundException() }
+        if (reservation.user.id != user.id) {
+            throw ReservationNotFoundException()
+        }
         if (reservation.paymentMethod != PaymentMethod.KAKAO_PAY) {
             throw PaymentTypeMismatchException()
         }
@@ -58,13 +64,27 @@ class PaymentService(
         }
         val tid = reservation.paymentId ?: throw ReservationNotFoundException()
 
-        val result = kakoPayClient.getOrderStatus(tid)
+        kakaoPayClient.approve(tid, reservation.id, user.id, request.pgToken)
+
+        val result = kakaoPayClient.getOrderStatus(tid)
         if (result.status == KakaoPayStatus.SUCCESS_PAYMENT) {
             reservation.status = ReservationStatus.CONFIRMED
         }
-        val googleMeetLink =
-            googleMeetCreator.createGoogleMeet(reservation, request.token)
-        reservation.googleMeetLink = googleMeetLink
+        if (request.googleAccessToken == null) {
+            if (reservation.meetingType == MeetingType.ONLINE) {
+                throw NeedGoogleAccessTokenException()
+            }
+            return result
+        } else if (reservation.meetingType == MeetingType.OFFLINE) {
+            throw InvalidMeetingTypeException()
+        }
+
+        if (result.status == KakaoPayStatus.SUCCESS_PAYMENT) {
+            val googleMeetCreateResult =
+                googleMeetManager.createGoogleMeet(reservation, request.googleAccessToken)
+            reservation.googleCalendarEventId = googleMeetCreateResult.first
+            reservation.googleMeetLink = googleMeetCreateResult.second
+        }
         return result
     }
 

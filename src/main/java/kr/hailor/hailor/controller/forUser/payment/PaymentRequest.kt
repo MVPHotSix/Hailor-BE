@@ -6,5 +6,6 @@ data class KakaoPayPaymentRequest(
 
 data class KakaoPayPaymentConfirmRequest(
     val reservationId: Long,
-    val token: String,
+    val googleAccessToken: String?,
+    val pgToken: String,
 )
