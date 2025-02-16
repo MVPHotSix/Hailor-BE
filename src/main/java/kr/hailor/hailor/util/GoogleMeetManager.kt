@@ -73,11 +73,11 @@ class GoogleMeetManager {
                 .insert(getOrCreateSecondaryCalendar(calendarService), event)
                 .setConferenceDataVersion(1)
                 .execute()
-        if (event.id == null || createdEvent.hangoutLink == null) {
+        if (createdEvent.id == null || createdEvent.hangoutLink == null) {
             throw GoogleMeetLinkException()
         }
 
-        return Pair(event.id, createdEvent.hangoutLink)
+        return Pair(createdEvent.id, createdEvent.hangoutLink)
     }
 
     fun deleteGoogleMeet(
