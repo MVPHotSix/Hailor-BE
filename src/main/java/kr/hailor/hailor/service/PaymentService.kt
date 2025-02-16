@@ -76,9 +76,11 @@ class PaymentService(
             throw InvalidMeetingTypeException()
         }
 
-        val googleMeetLink =
-            googleMeetCreator.createGoogleMeet(reservation, request.googleAccessToken)
-        reservation.googleMeetLink = googleMeetLink
+        if (result.status != KakaoPayStatus.SUCCESS_PAYMENT) {
+            val googleMeetLink =
+                googleMeetCreator.createGoogleMeet(reservation, request.googleAccessToken)
+            reservation.googleMeetLink = googleMeetLink
+        }
         return result
     }
 
