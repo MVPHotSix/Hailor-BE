@@ -63,6 +63,8 @@ class PaymentService(
         }
         val tid = reservation.paymentId ?: throw ReservationNotFoundException()
 
+        kakaoPayClient.approve(tid, reservation.id, user.id, request.pgToken)
+
         val result = kakaoPayClient.getOrderStatus(tid)
         if (result.status == KakaoPayStatus.SUCCESS_PAYMENT) {
             reservation.status = ReservationStatus.CONFIRMED

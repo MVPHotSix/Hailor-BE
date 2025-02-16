@@ -46,6 +46,25 @@ class KakaoPayClient(
             ).retrieve()
             .body<KakaoPayReadyResponse>() ?: throw FailToRequestKakaoPayAPIException("결제 요청 API")
 
+    fun approve(
+        tid: String,
+        orderId: Long,
+        userId: Long,
+        pgToken: String,
+    ): RestClient.ResponseSpec =
+        client
+            .post()
+            .uri("/online/v1/payment/approve")
+            .body(
+                KakaoPayApprovalRequest(
+                    cid = kakaoPayProperties.cid,
+                    tid = tid,
+                    partnerOrderId = orderId.toString(),
+                    partnerUserId = userId.toString(),
+                    pgToken = pgToken,
+                ),
+            ).retrieve()
+
     fun getOrderStatus(tid: String): KakaoPayGetOrderStatusResponse =
         client
             .post()
@@ -95,6 +114,15 @@ data class KakaoPayReadyResponse(
     val nextRedirectPcUrl: String,
     val nextRedirectMobileUrl: String,
     val createdAt: String,
+)
+
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
+data class KakaoPayApprovalRequest(
+    val cid: String,
+    val tid: String,
+    val partnerOrderId: String,
+    val partnerUserId: String,
+    val pgToken: String,
 )
 
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy::class)
