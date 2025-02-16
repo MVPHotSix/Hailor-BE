@@ -33,6 +33,13 @@ class ReservationController(
         request: UserReservationsSearchRequest,
     ): UserReservationsResponse = reservationService.getReservations(user, request)
 
+    @GetMapping("/recently-finished")
+    fun getRecentFinishedReservation(
+        @Parameter(hidden = true)
+        user: User,
+        request: UserReservationsSearchRequest,
+    ): UserReservationsResponse = reservationService.getRecentFinishedReservation(user, request)
+
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{id}")
     fun cancelReservation(

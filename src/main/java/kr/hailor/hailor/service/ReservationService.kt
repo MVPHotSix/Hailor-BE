@@ -113,26 +113,38 @@ class ReservationService(
                 reservationRepository.findAllByIdLessThanAndUserOrderByIdDesc(request.lastId, user, Pageable.ofSize(request.size))
             }
         return UserReservationsResponse(
-            reservations =
-                reservations.content.map {
-                    ReservationInfoDto(
-                        id = it.id,
-                        date = it.reservationDate,
-                        status = it.status,
-                        slot = it.slot,
-                        meetingType = it.meetingType,
-                        paymentMethod = it.paymentMethod,
-                        googleMeetLink = it.googleMeetLink,
-                        price = it.price,
-                        designer =
-                            ReservationInfoDto.ReservationDesignerInfoDto.of(
-                                it.designer,
-                                objectStorageRepository.getDownloadUrl(it.designer.profileImageName),
-                            ),
-                    )
-                },
+            reservations = reservationsToUserReservationsResponse(reservations.content),
         )
     }
+
+    fun getRecentFinishedReservation(
+        user: User,
+        request: UserReservationsSearchRequest,
+    ): UserReservationsResponse {
+        val reservations = reservationRepository.findAllRecentFinishedReservation(user, request, LocalDateTime.now())
+        return UserReservationsResponse(
+            reservations = reservationsToUserReservationsResponse(reservations.content),
+        )
+    }
+
+    private fun reservationsToUserReservationsResponse(reservations: List<Reservation>) =
+        reservations.map {
+            ReservationInfoDto(
+                id = it.id,
+                date = it.reservationDate,
+                status = it.status,
+                slot = it.slot,
+                meetingType = it.meetingType,
+                paymentMethod = it.paymentMethod,
+                googleMeetLink = it.googleMeetLink,
+                price = it.price,
+                designer =
+                    ReservationInfoDto.ReservationDesignerInfoDto.of(
+                        it.designer,
+                        objectStorageRepository.getDownloadUrl(it.designer.profileImageName),
+                    ),
+            )
+        }
 
     fun getAdminReservations(request: AdminReservationSearchRequest): AdminReservationListResponse {
         val reservations =
