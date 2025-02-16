@@ -12,10 +12,11 @@ import kr.hailor.hailor.enity.ReservationStatus
 import kr.hailor.hailor.enity.User
 import kr.hailor.hailor.exception.AlreadyPaidException
 import kr.hailor.hailor.exception.InvalidMeetingTypeException
+import kr.hailor.hailor.exception.NeedGoogleAccessTokenException
 import kr.hailor.hailor.exception.PaymentTypeMismatchException
 import kr.hailor.hailor.exception.ReservationNotFoundException
 import kr.hailor.hailor.repository.ReservationRepository
-import kr.hailor.hailor.util.GoogleMeetCreator
+import kr.hailor.hailor.util.GoogleMeetManager
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -23,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional
 class PaymentService(
     private val kakaoPayClient: KakaoPayClient,
     private val reservationRepository: ReservationRepository,
-    private val googleMeetCreator: GoogleMeetCreator,
+    private val googleMeetManager: GoogleMeetManager,
 ) {
     @Transactional
     fun requestKakaoPayPayment(
@@ -71,7 +72,7 @@ class PaymentService(
         }
         if (request.googleAccessToken == null) {
             if (reservation.meetingType == MeetingType.ONLINE) {
-                throw InvalidMeetingTypeException()
+                throw NeedGoogleAccessTokenException()
             }
             return result
         } else if (reservation.meetingType == MeetingType.OFFLINE) {
@@ -79,9 +80,10 @@ class PaymentService(
         }
 
         if (result.status != KakaoPayStatus.SUCCESS_PAYMENT) {
-            val googleMeetLink =
-                googleMeetCreator.createGoogleMeet(reservation, request.googleAccessToken)
-            reservation.googleMeetLink = googleMeetLink
+            val googleMeetCreateResult =
+                googleMeetManager.createGoogleMeet(reservation, request.googleAccessToken)
+            reservation.googleCalendarEventId = googleMeetCreateResult.first
+            reservation.googleMeetLink = googleMeetCreateResult.second
         }
         return result
     }

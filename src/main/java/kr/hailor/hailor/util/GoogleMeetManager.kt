@@ -21,11 +21,11 @@ import java.util.Date
 import java.util.UUID
 
 @Component
-class GoogleMeetCreator {
+class GoogleMeetManager {
     fun createGoogleMeet(
         reservation: Reservation,
         accessToken: String,
-    ): String {
+    ): Pair<String, String> {
         val startLocalDateTime =
             reservation.reservationDate.atStartOfDay().plusHours((10 + reservation.slot / 2).toLong()).plusMinutes(
                 if (reservation.slot % 2 == 0) {
@@ -38,16 +38,8 @@ class GoogleMeetCreator {
 
         val endLocalDateTime = startLocalDateTime.plusMinutes(30)
         val endDateTime = DateTime(Date.from(endLocalDateTime.atZone(ZoneId.systemDefault()).toInstant()))
-        val credential = GoogleCredentials.newBuilder().setAccessToken(AccessToken(accessToken, null)).build()
 
-        val calendarService =
-            Calendar
-                .Builder(
-                    GoogleNetHttpTransport.newTrustedTransport(),
-                    GsonFactory.getDefaultInstance(),
-                    HttpCredentialsAdapter(credential),
-                ).setApplicationName("Hailor")
-                .build()
+        val calendarService = getCalendarService(accessToken)
 
         val event =
             Event()
@@ -81,9 +73,29 @@ class GoogleMeetCreator {
                 .insert(getOrCreateSecondaryCalendar(calendarService), event)
                 .setConferenceDataVersion(1)
                 .execute()
+        if (event.id == null || createdEvent.hangoutLink == null) {
+            throw GoogleMeetLinkException()
+        }
 
-        return createdEvent.hangoutLink ?: throw GoogleMeetLinkException()
+        return Pair(event.id, createdEvent.hangoutLink)
     }
+
+    fun deleteGoogleMeet(
+        eventId: String,
+        accessToken: String,
+    ) {
+        val calendarService = getCalendarService(accessToken)
+        calendarService.events().delete(getOrCreateSecondaryCalendar(calendarService), eventId).execute()
+    }
+
+    private fun getCalendarService(accessToken: String): Calendar =
+        Calendar
+            .Builder(
+                GoogleNetHttpTransport.newTrustedTransport(),
+                GsonFactory.getDefaultInstance(),
+                HttpCredentialsAdapter(GoogleCredentials.newBuilder().setAccessToken(AccessToken(accessToken, null)).build()),
+            ).setApplicationName("Hailor")
+            .build()
 
     private fun getOrCreateSecondaryCalendar(calendarService: Calendar): String {
         val calendarSummary = "Hailor 디자이너 예약 캘린더" // 보조 캘린더 이름

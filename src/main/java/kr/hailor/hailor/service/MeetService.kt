@@ -8,13 +8,13 @@ import kr.hailor.hailor.exception.InvalidMeetingTypeException
 import kr.hailor.hailor.exception.NotConfirmedException
 import kr.hailor.hailor.exception.ReservationNotFoundException
 import kr.hailor.hailor.repository.ReservationRepository
-import kr.hailor.hailor.util.GoogleMeetCreator
+import kr.hailor.hailor.util.GoogleMeetManager
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class MeetService(
-    private val googleMeetCreator: GoogleMeetCreator,
+    private val googleMeetManager: GoogleMeetManager,
     private val reservationRepository: ReservationRepository,
 ) {
     @Transactional
@@ -34,6 +34,9 @@ class MeetService(
             throw InvalidMeetingTypeException()
         }
 
-        return googleMeetCreator.createGoogleMeet(reservation, request.googleAccessToken)
+        val googleMeetCreateResult = googleMeetManager.createGoogleMeet(reservation, request.googleAccessToken)
+        reservation.googleCalendarEventId = googleMeetCreateResult.first
+        reservation.googleMeetLink = googleMeetCreateResult.second
+        return googleMeetCreateResult.second
     }
 }

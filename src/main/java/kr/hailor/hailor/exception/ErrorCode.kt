@@ -17,6 +17,7 @@ enum class ErrorCode(
     PAYMENT_TYPE_MISMATCH(HttpStatus.BAD_REQUEST, -40007, "결제 타입이 일치하지 않습니다"),
     NOT_CONFIRMED(HttpStatus.BAD_REQUEST, -40008, "예약금이 미입금된 예약입니다"),
     ALREADY_DONE(HttpStatus.BAD_REQUEST, -40009, "이미 처리 완료된 예약입니다"),
+    NEED_GOOGLE_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, -40010, "구글 액세스 토큰이 필요합니다"),
 
     AUTHENTICATED_USER_NOT_FOUND(HttpStatus.UNAUTHORIZED, -40100, "인증된 사용자를 찾을 수 없습니다."),
 

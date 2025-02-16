@@ -4,6 +4,7 @@ import kr.hailor.hailor.client.KakaoPayClient
 import kr.hailor.hailor.client.KakaoPayStatus
 import kr.hailor.hailor.controller.forAdmin.reservation.AdminReservationListResponse
 import kr.hailor.hailor.controller.forAdmin.reservation.AdminReservationSearchRequest
+import kr.hailor.hailor.controller.forUser.reservation.ReservationCancelRequest
 import kr.hailor.hailor.controller.forUser.reservation.ReservationCreateRequest
 import kr.hailor.hailor.controller.forUser.reservation.ReservationInfoDto
 import kr.hailor.hailor.controller.forUser.reservation.UserReservationsResponse
@@ -18,11 +19,13 @@ import kr.hailor.hailor.exception.AlreadyReservedDesignerSlotException
 import kr.hailor.hailor.exception.DesignerNotFoundException
 import kr.hailor.hailor.exception.InvalidMeetingTypeException
 import kr.hailor.hailor.exception.InvalidReservationDateException
+import kr.hailor.hailor.exception.NeedGoogleAccessTokenException
 import kr.hailor.hailor.exception.ReservationNotFoundException
 import kr.hailor.hailor.exception.TemporallyUnavailableException
 import kr.hailor.hailor.repository.DesignerRepository
 import kr.hailor.hailor.repository.ObjectStorageRepository
 import kr.hailor.hailor.repository.ReservationRepository
+import kr.hailor.hailor.util.GoogleMeetManager
 import kr.hailor.hailor.util.LockUtil
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
@@ -39,6 +42,7 @@ class ReservationService(
     private val lockUtil: LockUtil,
     private val kakaoPayClient: KakaoPayClient,
     private val objectStorageRepository: ObjectStorageRepository,
+    private val googleMeetManager: GoogleMeetManager,
 ) {
     @Transactional
     fun createReservation(
@@ -180,6 +184,7 @@ class ReservationService(
     fun cancelReservation(
         user: User,
         id: Long,
+        request: ReservationCancelRequest,
     ) {
         val reservation = reservationRepository.findById(id).orElseThrow { ReservationNotFoundException() }
         if (reservation.user.id != user.id) {
@@ -194,6 +199,12 @@ class ReservationService(
             reservation.status = ReservationStatus.CANCELED
         } else if (reservation.status == ReservationStatus.CONFIRMED) {
             reservation.status = ReservationStatus.NEED_REFUND
+        }
+        if (reservation.googleCalendarEventId != null && reservation.googleMeetLink != null) {
+            if (request.googleAccessToken == null) {
+                throw NeedGoogleAccessTokenException()
+            }
+            googleMeetManager.deleteGoogleMeet(reservation.googleCalendarEventId!!, request.googleAccessToken)
         }
     }
 

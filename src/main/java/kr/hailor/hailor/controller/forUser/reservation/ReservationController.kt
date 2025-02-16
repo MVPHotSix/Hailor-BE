@@ -47,5 +47,7 @@ class ReservationController(
         user: User,
         @Parameter(description = "예약 ID")
         id: Long,
-    ) = reservationService.cancelReservation(user, id)
+        @RequestBody
+        request: ReservationCancelRequest,
+    ) = reservationService.cancelReservation(user, id, request)
 }

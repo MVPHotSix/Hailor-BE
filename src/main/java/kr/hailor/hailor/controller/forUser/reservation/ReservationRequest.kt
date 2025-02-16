@@ -16,3 +16,7 @@ data class UserReservationsSearchRequest(
     val size: Int,
     val lastId: Long?,
 )
+
+data class ReservationCancelRequest(
+    val googleAccessToken: String?,
+)
