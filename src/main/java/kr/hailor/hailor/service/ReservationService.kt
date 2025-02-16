@@ -1,6 +1,7 @@
 package kr.hailor.hailor.service
 
 import kr.hailor.hailor.client.KakaoPayClient
+import kr.hailor.hailor.client.KakaoPayStatus
 import kr.hailor.hailor.controller.forAdmin.reservation.AdminReservationListResponse
 import kr.hailor.hailor.controller.forAdmin.reservation.AdminReservationSearchRequest
 import kr.hailor.hailor.controller.forUser.reservation.ReservationCreateRequest
@@ -192,7 +193,10 @@ class ReservationService(
         }
         reservation.status = ReservationStatus.REFUNDED
         if (reservation.paymentMethod == PaymentMethod.KAKAO_PAY) {
-            kakaoPayClient.cancel(reservation.paymentId!!, reservation.price)
+            val result = kakaoPayClient.getOrderStatus(reservation.paymentId!!)
+            if (result.status == KakaoPayStatus.SUCCESS_PAYMENT) { // 결제가 완료된 경우에만 환불 진행
+                kakaoPayClient.cancel(reservation.paymentId!!, reservation.price)
+            }
         }
     }
 }

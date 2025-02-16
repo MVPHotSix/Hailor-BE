@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class PaymentService(
-    private val kakoPayClient: KakaoPayClient,
+    private val kakaoPayClient: KakaoPayClient,
     private val reservationRepository: ReservationRepository,
     private val googleMeetCreator: GoogleMeetCreator,
 ) {
@@ -39,7 +39,7 @@ class PaymentService(
             throw AlreadyPaidException()
         }
 
-        val result = kakoPayClient.ready(amount = reservation.price, orderId = reservation.id, userId = user.id)
+        val result = kakaoPayClient.ready(amount = reservation.price, orderId = reservation.id, userId = user.id)
         reservation.paymentId = result.tid
         return result
     }
@@ -58,7 +58,7 @@ class PaymentService(
         }
         val tid = reservation.paymentId ?: throw ReservationNotFoundException()
 
-        val result = kakoPayClient.getOrderStatus(tid)
+        val result = kakaoPayClient.getOrderStatus(tid)
         if (result.status == KakaoPayStatus.SUCCESS_PAYMENT) {
             reservation.status = ReservationStatus.CONFIRMED
         }
