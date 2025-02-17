@@ -44,7 +44,7 @@ class DesignerCustomRepositoryImpl(
                 .whereAnd(
                     *buildList {
                         if (request.name != null) {
-                            add(path(Designer::name).eq(request.name))
+                            add(path(Designer::name).like("%" + request.name + "%"))
                         }
                         if (request.meetingType != null) {
                             add(path(Designer::meetingType).`in`(listOf(request.meetingType, MeetingType.OFFLINE_AND_ONLINE)))
