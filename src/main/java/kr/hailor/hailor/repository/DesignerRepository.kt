@@ -96,9 +96,10 @@ class DesignerCustomRepositoryImpl(
                 .orderBy(
                     select(count(reservationEntity))
                         .from(reservationEntity)
-                        .where(path(Reservation::reservationDate).ge(targetDate))
-                        .groupBy(path(Reservation::designer))
-                        .asSubquery()
+                        .whereAnd(
+                            path(Reservation::reservationDate).ge(targetDate),
+                            path(Reservation::designer).eq(designerEntity),
+                        ).asSubquery()
                         .desc(),
                 )
         }

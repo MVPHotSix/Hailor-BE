@@ -32,7 +32,7 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
         headers: HttpHeaders,
         status: HttpStatusCode,
         request: WebRequest,
-    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST)
+    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST, ex)
 
     override fun handleHttpMessageNotReadable(
         ex: HttpMessageNotReadableException,
@@ -48,7 +48,7 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
                 }
                 else -> "유효하지 않은 요청입니다"
             }
-        return getErrorResponse(ErrorCode.INVALID_REQUEST, errorMessage, HttpStatus.BAD_REQUEST)
+        return getErrorResponse(ErrorCode.INVALID_REQUEST, errorMessage, HttpStatus.BAD_REQUEST, ex)
     }
 
     override fun handleHttpRequestMethodNotSupported(
@@ -56,42 +56,42 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
         headers: HttpHeaders,
         status: HttpStatusCode,
         request: WebRequest,
-    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST)
+    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST, ex)
 
     override fun handleMissingServletRequestPart(
         ex: MissingServletRequestPartException,
         headers: HttpHeaders,
         status: HttpStatusCode,
         request: WebRequest,
-    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST)
+    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST, ex)
 
     override fun handleMissingServletRequestParameter(
         ex: MissingServletRequestParameterException,
         headers: HttpHeaders,
         status: HttpStatusCode,
         request: WebRequest,
-    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST)
+    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST, ex)
 
     override fun handleMissingPathVariable(
         ex: MissingPathVariableException,
         headers: HttpHeaders,
         status: HttpStatusCode,
         request: WebRequest,
-    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST)
+    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST, ex)
 
     override fun handleHttpMediaTypeNotSupported(
         ex: HttpMediaTypeNotSupportedException,
         headers: HttpHeaders,
         status: HttpStatusCode,
         request: WebRequest,
-    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.UNSUPPORTED_MEDIA_TYPE)
+    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.UNSUPPORTED_MEDIA_TYPE, ex)
 
     override fun handleHandlerMethodValidationException(
         ex: HandlerMethodValidationException,
         headers: HttpHeaders,
         status: HttpStatusCode,
         request: WebRequest,
-    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST)
+    ): ResponseEntity<Any>? = getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST, ex)
 
     @ExceptionHandler(
         IllegalArgumentException::class,
@@ -99,26 +99,24 @@ class ExceptionHandler : ResponseEntityExceptionHandler() {
         ConstraintViolationException::class,
     )
     fun invalidRequestException(ex: RuntimeException): ResponseEntity<Any> =
-        getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST)
+        getErrorResponse(ErrorCode.INVALID_REQUEST, ex.message, HttpStatus.BAD_REQUEST, ex)
 
     @ExceptionHandler(FileNotFoundException::class)
     fun fileNotFoundException(ex: FileNotFoundException): ResponseEntity<Any> =
-        getErrorResponse(ErrorCode.FILE_NOT_FOUND, ex.message, HttpStatus.NOT_FOUND)
+        getErrorResponse(ErrorCode.FILE_NOT_FOUND, ex.message, HttpStatus.NOT_FOUND, ex)
 
     @ExceptionHandler(BaseException::class)
-    fun baseException(ex: BaseException): ResponseEntity<ErrorResponse> =
-        ResponseEntity
-            .status(ex.errorCode.httpStatus)
-            .body(ErrorResponse.of(ex.errorCode, ex.message))
+    fun baseException(ex: BaseException): ResponseEntity<Any> = getErrorResponse(ex.errorCode, ex.message, ex.errorCode.httpStatus, ex)
 
     private fun getErrorResponse(
         errorCode: ErrorCode,
         errorMessage: String?,
         httpStatus: HttpStatus,
+        ex: Exception,
     ): ResponseEntity<Any> =
         ResponseEntity
             .status(httpStatus)
-            .body(ErrorResponse.of(errorCode, errorMessage ?: "유효하지 않은 요청입니다"))
+            .body(ErrorResponse.of(errorCode, errorMessage ?: "유효하지 않은 요청입니다").also { ex.printStackTrace() })
 }
 
 class ErrorResponse(
