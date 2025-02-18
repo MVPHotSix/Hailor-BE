@@ -35,7 +35,7 @@ class AuthService(
         val user =
             userRepository.findByEmail(email)
                 ?: throw NotRegisteredUserException()
-        return makeTokens(user)
+        return makeTokens(user, payload["picture"] as String)
     }
 
     @Transactional(readOnly = true)
@@ -95,8 +95,11 @@ class AuthService(
         return idToken.payload as Map<String, Any>
     }
 
-    private fun makeTokens(user: User): ServiceTokensResponse {
-        val accessToken = jwtUtil.generateAccessToken(user)
+    private fun makeTokens(
+        user: User,
+        profileImage: String = "https://i.namu.wiki/i/cvD0NE4fOIaOCN5Hl08GsAaml5dv3atenp0hGHrnKCTkq6nJI_sf9QaRH2hwapfI0sMo_3rUfYHEf06vuM-JtOsL8DAmqmk-c0FXFWM9Ptye3M8xeDaa_Dpf-KN6FhbVxrGzEVx6oFTOLe4jM7iozQ.webp",
+    ): ServiceTokensResponse {
+        val accessToken = jwtUtil.generateAccessToken(user, profileImage)
         val rotateId = jwtUtil.generateRotateId()
         val refreshToken = jwtUtil.generateRefreshToken(user.id, rotateId)
         jwtUtil.storeCachedRefreshTokenRotateId(user.id, rotateId)
