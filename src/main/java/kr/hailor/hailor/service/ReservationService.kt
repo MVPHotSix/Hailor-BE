@@ -57,7 +57,7 @@ class ReservationService(
         ) {
             throw InvalidMeetingTypeException()
         }
-        if (request.reservationDate > LocalDate.now().plusDays(90) ||
+        if (request.reservationDate > LocalDate.now().plusMonths(3) ||
             request.reservationDate.isBefore(LocalDate.now()) ||
             request.slot !in 0 until 20 ||
             (
