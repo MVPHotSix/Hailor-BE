@@ -31,7 +31,6 @@ class JwtUtil(
 
     fun generateAccessToken(
         user: User,
-        profileImage: String,
         expirationTime: Long = accessTokenExpirationTime,
     ): String =
         generateJwtToken(
@@ -40,7 +39,7 @@ class JwtUtil(
                 "userId" to user.id.toString(),
                 "name" to user.name,
                 "role" to user.role.name,
-                "profileImage" to profileImage,
+                "profileImage" to user.profileImage,
             ),
             expirationTime,
             accessKey,

@@ -25,8 +25,10 @@ class User(
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     val role: Role,
-    @Column(length = 255, nullable = false, updatable = false)
+    @Column(length = 255, nullable = false)
     private val providerId: String,
+    @Column(length = 255, nullable = false)
+    var profileImage: String,
 ) : BaseModifiableEntity()
 
 enum class Role {
